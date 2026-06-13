@@ -128,26 +128,18 @@ class ChatRepositoryImpl implements ChatRepository {
   /// Bayt oqimini SSE satrlariga, so'ng AgentEvent'larga aylantiradi.
   /// Har bir event bitta `data: {json}` satrida keladi.
   Stream<AgentEvent> _parseSse(Stream<List<int>> byteStream) async* {
-    final decoder = StreamTransformer<List<int>, String>.fromHandlers(
-      handleData: (bytes, sink) {
-        // Chunk chegarasida bo'linib qolgan ko'p baytli UTF-8 belgilarini
-        // yo'qotmaslik uchun allowMalformed: true bilan dekodlaymiz.
-        sink.add(utf8.decode(bytes, allowMalformed: true));
-      },
-    );
-    final lines = byteStream.transform(decoder).transform(const LineSplitter());
+    final lines = byteStream
+        .map((bytes) => utf8.decode(bytes, allowMalformed: true))
+        .transform(const LineSplitter());
     await for (final line in lines) {
       if (!line.startsWith('data:')) continue;
       final data = line.substring(5).trim();
       if (data.isEmpty || data == '[DONE]') continue;
-      Map<String, dynamic> json;
       try {
-        json = jsonDecode(data) as Map<String, dynamic>;
-      } catch (_) {
-        continue;
-      }
-      final event = _eventFromJson(json);
-      if (event != null) yield event;
+        final json = jsonDecode(data) as Map<String, dynamic>;
+        final event = _eventFromJson(json);
+        if (event != null) yield event;
+      } catch (_) {}
     }
   }
 
