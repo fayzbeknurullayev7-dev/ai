@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const baseUrl = 'http://192.168.1.5:8000/api/v1'; // Android emulator
+  static const baseUrl = 'https://dd9447fb48d9ef7e-84-54-70-106.serveousercontent.com/api/v1'; // Serveo tunnel
   // static const baseUrl = 'http://localhost:8000/api/v1'; // iOS/Web
 
   static const chatEndpoint = '/chat/';
