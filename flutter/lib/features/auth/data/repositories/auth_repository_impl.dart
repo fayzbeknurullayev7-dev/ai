@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/storage/token_storage.dart';
 import '../../domain/entities/auth_user.dart';
@@ -56,7 +57,21 @@ class AuthRepositoryImpl implements AuthRepository {
     Map<String, dynamic> body,
   ) async {
     try {
+      // So'rovdan oldin: qaysi endpointga, qanday body bilan ketayotganini logga yozamiz.
+      // Parol logda chiqmasligi uchun maskalaymiz. Faqat debug rejimda ko'rinadi.
+      final maskedBody = {
+        ...body,
+        if (body.containsKey('password')) 'password': '***',
+      };
+      debugPrint('[AuthRepository] → POST $endpoint body=$maskedBody');
+
       final resp = await _dio.post(endpoint, data: body);
+
+      // So'rovdan keyin: status kod va javobni logga yozamiz.
+      debugPrint(
+        '[AuthRepository] ← ${resp.statusCode} $endpoint data=${resp.data}',
+      );
+
       final data = resp.data as Map<String, dynamic>;
       final user = AuthUser.fromJson(data['user'] as Map<String, dynamic>);
       final token = (data['token'] as Map<String, dynamic>)['access_token'] as String;
@@ -68,8 +83,13 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return Right(user);
     } on DioException catch (e) {
+      debugPrint(
+        '[AuthRepository] ✗ DioException $endpoint '
+        'status=${e.response?.statusCode} data=${e.response?.data}',
+      );
       return Left(_friendlyError(e));
     } catch (e) {
+      debugPrint('[AuthRepository] ✗ Kutilmagan xato $endpoint: $e');
       return Left('Kutilmagan xato: $e');
     }
   }
