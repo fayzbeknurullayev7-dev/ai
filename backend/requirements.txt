@@ -1,0 +1,14 @@
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+gunicorn==22.0.0
+python-dotenv==1.0.1
+groq==0.9.0
+google-generativeai==0.7.2
+httpx==0.27.0
+pydantic==2.7.1
+pydantic-settings==2.3.4
+redis==5.0.6
+python-multipart==0.0.9
+# RAG / vektor qidiruv qo'shimcha qattiq bog'liqlik talab qilmaydi:
+# offline HashingEmbedder + sof Python kosinus qidiruv standart libdan foydalanadi,
+# Gemini embeddinglari esa mavjud google-generativeai paketi orqali ishlaydi.

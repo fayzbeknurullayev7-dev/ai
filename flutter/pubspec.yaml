@@ -1,0 +1,47 @@
+name: nexus_ai_agent
+description: Nexus AI Agent - Flutter Frontend
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # State management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  # Navigation
+  go_router: ^14.1.4
+  # Network
+  dio: ^5.4.3+1
+  # Local storage
+  hive_flutter: ^1.1.0
+  shared_preferences: ^2.2.3
+  # Functional programming
+  dartz: ^0.10.1
+  # UI
+  flutter_markdown: ^0.6.22
+  google_fonts: ^6.2.1
+  flutter_animate: ^4.5.0
+  # Utils
+  uuid: ^4.4.0
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.11
+  riverpod_generator: ^2.4.3
+
+# path_provider_android 2.3.x JNI (native NDK build) talab qiladi.
+# Past xotirali/joyli ARM muhitda NDK o'rnatib bo'lmaydi, shuning uchun
+# JNI'siz oxirgi versiyaga (2.2.23) qadab qo'yamiz — funksionallik bir xil.
+dependency_overrides:
+  path_provider_android: 2.2.23
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/

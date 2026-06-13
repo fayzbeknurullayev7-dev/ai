@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual env
+.venv/
+venv/
+env/
+
+# Tests (image'ga kerak emas — CI alohida ishlatadi)
+tests/
+
+# Maxfiy ma'lumotlar — HECH QACHON image ichiga kirmasin
+.env
+*.env
+!.env.example
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Docs / git
+*.md
+.git/
+.gitignore

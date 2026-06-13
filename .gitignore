@@ -1,0 +1,31 @@
+# ---- Maxfiy ma'lumotlar (HECH QACHON commit qilinmasin) --------------------
+.env
+*.env
+!*.env.example
+!.env.example
+
+# ---- Python ----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# ---- Flutter / Dart --------------------------------------------------------
+flutter/.dart_tool/
+flutter/build/
+flutter/.flutter-plugins
+flutter/.flutter-plugins-dependencies
+flutter/.packages
+
+# ---- Docker / runtime ------------------------------------------------------
+*.log
+
+# ---- IDE / OS --------------------------------------------------------------
+.idea/
+.vscode/
+.DS_Store
