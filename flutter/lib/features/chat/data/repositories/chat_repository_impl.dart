@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
@@ -127,7 +128,14 @@ class ChatRepositoryImpl implements ChatRepository {
   /// Bayt oqimini SSE satrlariga, so'ng AgentEvent'larga aylantiradi.
   /// Har bir event bitta `data: {json}` satrida keladi.
   Stream<AgentEvent> _parseSse(Stream<List<int>> byteStream) async* {
-    final lines = byteStream.transform(utf8.decoder).transform(const LineSplitter());
+    final decoder = StreamTransformer<List<int>, String>.fromHandlers(
+      handleData: (bytes, sink) {
+        // Chunk chegarasida bo'linib qolgan ko'p baytli UTF-8 belgilarini
+        // yo'qotmaslik uchun allowMalformed: true bilan dekodlaymiz.
+        sink.add(utf8.decode(bytes, allowMalformed: true));
+      },
+    );
+    final lines = byteStream.transform(decoder).transform(const LineSplitter());
     await for (final line in lines) {
       if (!line.startsWith('data:')) continue;
       final data = line.substring(5).trim();
