@@ -8,6 +8,6 @@ class ApiConstants {
   static const registerEndpoint = '/auth/register';
   static const loginEndpoint = '/auth/login';
   static const meEndpoint = '/auth/me';
-  static const connectTimeout = Duration(seconds: 30);
-  static const receiveTimeout = Duration(seconds: 60);
+  static const connectTimeout = Duration(seconds: 120);
+  static const receiveTimeout = Duration(seconds: 120);
 }
