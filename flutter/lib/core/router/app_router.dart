@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
-import '../../features/chat/presentation/pages/chat_page.dart';
+import '../../features/home/presentation/pages/home_shell.dart';
 import '../../features/splash/splash_page.dart';
 
 /// Auth holati o'zgarganda routerni qayta baholash uchun `Listenable`.
@@ -43,7 +43,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (ctx, state) => const SplashPage()),
       GoRoute(path: '/login', builder: (ctx, state) => const LoginPage()),
       GoRoute(path: '/register', builder: (ctx, state) => const RegisterPage()),
-      GoRoute(path: '/chat', builder: (ctx, state) => const ChatPage()),
+      GoRoute(path: '/chat', builder: (ctx, state) => const HomeShell()),
     ],
   );
 });

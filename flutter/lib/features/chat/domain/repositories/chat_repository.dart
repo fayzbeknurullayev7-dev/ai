@@ -20,12 +20,14 @@ abstract class ChatRepository {
 
   /// SSE oqimi. `planner=true` → /agent/stream (qadamlar + token),
   /// aks holda /chat/stream (keyword routing). Eventlar real vaqtda keladi.
+  /// `mode` berilsa (image/code/...) — backend shu agentni majburlaydi.
   /// `cancelToken` orqali foydalanuvchi oqimni to'xtatishi mumkin.
   Stream<AgentEvent> streamMessage({
     required String message,
     required List<ChatMessage> history,
     required String sessionId,
     required bool planner,
+    String? mode,
     CancelToken? cancelToken,
   });
 }

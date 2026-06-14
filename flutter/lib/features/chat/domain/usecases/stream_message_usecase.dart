@@ -13,6 +13,7 @@ class StreamMessageUseCase {
     required List<ChatMessage> history,
     required String sessionId,
     required bool planner,
+    String? mode,
     CancelToken? cancelToken,
   }) {
     return _repository.streamMessage(
@@ -20,6 +21,7 @@ class StreamMessageUseCase {
       history: history,
       sessionId: sessionId,
       planner: planner,
+      mode: mode,
       cancelToken: cancelToken,
     );
   }

@@ -60,11 +60,15 @@ class AgentRouter:
         media: BaseAgent,
         planner: BaseAgent,
         image: BaseAgent,
+        coder_pro: BaseAgent | None = None,
     ):
         self._coder = coder
         self._media = media
         self._planner = planner
         self._image = image
+        # "Kod" tabi uchun elite coder (alohida system prompt). Berilmasa —
+        # oddiy coder'ga qaytamiz (orqaga moslik).
+        self._coder_pro = coder_pro or coder
 
     @staticmethod
     def _count_matches(keywords: List[str], tokens: set, lower: str) -> int:
@@ -115,22 +119,49 @@ class AgentRouter:
             return self._media
         return self._coder
 
+    def _agent_for_mode(self, mode: str | None) -> BaseAgent | None:
+        """Tabga bog'liq majburiy agent. Noma'lum/None bo'lsa — None (auto)."""
+        if not mode:
+            return None
+        return {
+            "image": self._image,
+            "code": self._coder_pro,
+            "media": self._media,
+            "planner": self._planner,
+            "chat": self._coder,
+        }.get(mode.lower())
+
+    def _resolve(self, message: str, mode: str | None) -> BaseAgent:
+        return self._agent_for_mode(mode) or self._select_agent(message)
+
     async def route(
-        self, message: str, history: List[Message], session_id: str = "default"
+        self,
+        message: str,
+        history: List[Message],
+        session_id: str = "default",
+        mode: str | None = None,
     ) -> AgentResult:
-        agent = self._select_agent(message)
+        agent = self._resolve(message, mode)
         return await agent.process(message, history, session_id)
 
     async def route_stream(
-        self, message: str, history: List[Message], session_id: str = "default"
+        self,
+        message: str,
+        history: List[Message],
+        session_id: str = "default",
+        mode: str | None = None,
     ) -> AsyncIterator[str]:
-        agent = self._select_agent(message)
+        agent = self._resolve(message, mode)
         async for chunk in agent.stream(message, history, session_id):
             yield chunk
 
     async def route_stream_events(
-        self, message: str, history: List[Message], session_id: str = "default"
+        self,
+        message: str,
+        history: List[Message],
+        session_id: str = "default",
+        mode: str | None = None,
     ) -> AsyncIterator[Dict[str, Any]]:
-        agent = self._select_agent(message)
+        agent = self._resolve(message, mode)
         async for ev in agent.stream_events(message, history, session_id):
             yield ev

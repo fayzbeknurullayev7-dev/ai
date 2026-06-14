@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class Message(BaseModel):
@@ -11,6 +11,9 @@ class ChatRequest(BaseModel):
     message: str
     history: List[Message] = []
     session_id: str = "default"
+    # Tabga bog'liq agentni majburlash: "image" | "code" | "media" | "planner".
+    # None bo'lsa — keyword routing (default xulq) ishlaydi.
+    mode: Optional[str] = None
 
 
 class ChatResponse(BaseModel):

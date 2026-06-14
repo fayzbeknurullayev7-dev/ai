@@ -17,7 +17,7 @@ async def chat(
     # Sessiya = joriy foydalanuvchi id'si: har kim o'z xotirasi/bilim bazasiga ega.
     try:
         result = await agent_router.route(
-            request.message, request.history, current.id
+            request.message, request.history, current.id, request.mode
         )
         return ChatResponse(
             reply=result.content,
@@ -34,9 +34,9 @@ async def chat_stream(
     agent_router: AgentRouter = Depends(get_agent_router),
     current: User = Depends(get_current_user),
 ):
-    """Keyword routing bilan tanlangan agentni tipizatsiyalangan SSE oqimida."""
+    """Tab `mode`i (yoki keyword routing) bilan tanlangan agentni SSE oqimida."""
     return sse_response(
         agent_router.route_stream_events(
-            request.message, request.history, current.id
+            request.message, request.history, current.id, request.mode
         )
     )

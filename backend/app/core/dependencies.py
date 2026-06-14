@@ -1,5 +1,5 @@
 from app.agents.router import AgentRouter
-from app.agents.coder_agent import CoderAgent
+from app.agents.coder_agent import CoderAgent, ELITE_CODER_PROMPT
 from app.agents.media_agent import MediaAgent
 from app.agents.planner_agent import PlannerAgent
 from app.agents.image_agent import ImageAgent
@@ -45,13 +45,25 @@ _registry.register(KnowledgeSearchTool(_knowledge_base))
 
 # Agentlar
 _coder = CoderAgent()
+# "Kod" tabi uchun elite (Coder Pro) — alohida system prompt, pastroq temperature.
+_coder_pro = CoderAgent(
+    system_prompt=ELITE_CODER_PROMPT,
+    agent_name="CoderProAgent",
+    temperature=0.2,
+)
 _media = MediaAgent()
 _image = ImageAgent()
 _planner = PlannerAgent(
     registry=_registry, memory=_memory, knowledge_base=_knowledge_base
 )
 
-_router = AgentRouter(coder=_coder, media=_media, planner=_planner, image=_image)
+_router = AgentRouter(
+    coder=_coder,
+    media=_media,
+    planner=_planner,
+    image=_image,
+    coder_pro=_coder_pro,
+)
 
 
 def get_agent_router() -> AgentRouter:

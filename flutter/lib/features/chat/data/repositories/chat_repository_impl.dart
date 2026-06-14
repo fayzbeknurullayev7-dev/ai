@@ -18,11 +18,13 @@ class ChatRepositoryImpl implements ChatRepository {
       history.map((m) => {'role': m.role, 'content': m.content}).toList();
 
   Map<String, dynamic> _body(
-          String message, List<ChatMessage> history, String sessionId) =>
+          String message, List<ChatMessage> history, String sessionId,
+          {String? mode}) =>
       {
         'message': message,
         'history': _historyJson(history),
         'session_id': sessionId,
+        if (mode != null) 'mode': mode,
       };
 
   // ---- Non-stream ---------------------------------------------------------
@@ -70,6 +72,7 @@ class ChatRepositoryImpl implements ChatRepository {
     required List<ChatMessage> history,
     required String sessionId,
     required bool planner,
+    String? mode,
     CancelToken? cancelToken,
   }) async* {
     final endpoint = planner
@@ -78,7 +81,7 @@ class ChatRepositoryImpl implements ChatRepository {
     try {
       final response = await _dio.post(
         endpoint,
-        data: _body(message, history, sessionId),
+        data: _body(message, history, sessionId, mode: mode),
         options: Options(responseType: ResponseType.stream),
         cancelToken: cancelToken,
       );
