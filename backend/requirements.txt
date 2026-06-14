@@ -9,6 +9,8 @@ pydantic==2.7.1
 pydantic-settings==2.3.4
 redis==5.0.6
 python-multipart==0.0.9
+# Slayd (.pptx) generatsiya — Slayd bo'limi uchun.
+python-pptx==1.0.2
 # RAG / vektor qidiruv qo'shimcha qattiq bog'liqlik talab qilmaydi:
 # offline HashingEmbedder + sof Python kosinus qidiruv standart libdan foydalanadi,
 # Gemini embeddinglari esa mavjud google-generativeai paketi orqali ishlaydi.

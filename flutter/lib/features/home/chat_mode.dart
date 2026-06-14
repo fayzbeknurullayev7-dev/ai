@@ -49,8 +49,9 @@ enum ChatMode {
         ChatMode.video => Icons.movie_creation,
       };
 
-  /// "Tez kunda" placeholder tab (Slayd/Video).
-  bool get isComingSoon => this == ChatMode.slides || this == ChatMode.video;
+  /// "Tez kunda" placeholder tab. Slayd va Video endi to'liq ishlaydi
+  /// (alohida sahifalar), shuning uchun hozircha hech bir rejim "tez kunda" emas.
+  bool get isComingSoon => false;
 
   String get appBarTitle => switch (this) {
         ChatMode.image => 'Rasm yaratish',

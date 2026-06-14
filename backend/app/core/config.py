@@ -4,6 +4,9 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     GROQ_API_KEY: str = ""
     GEMINI_API_KEY: str = ""
+    # Kling AI (video generatsiya) — kuniga 66 bepul kredit. Bo'sh bo'lsa
+    # /video/generate "Kling API key kerak" deb 503 qaytaradi (UI tayyor turadi).
+    KLING_API_KEY: str = ""
     REDIS_URL: str = "redis://localhost:6379"
     APP_ENV: str = "development"
     # Xotira backendi: "memory" (RAM, standart) yoki "redis" (persistent).

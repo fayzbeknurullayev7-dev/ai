@@ -1,6 +1,13 @@
 class ApiConstants {
   static const baseUrl = 'https://nexus-project-3gnp.onrender.com/api/v1';
 
+  /// Host (`/api/v1`siz) — backend qaytargan nisbiy `download_url` (masalan
+  /// `/api/v1/slides/download/<id>`) bilan birlashtirib to'liq havola quriladi.
+  static final origin = baseUrl.replaceFirst('/api/v1', '');
+
+  static const slidesGenerateEndpoint = '/slides/generate';
+  static const videoGenerateEndpoint = '/video/generate';
+
   static const chatEndpoint = '/chat/';
   static const chatStreamEndpoint = '/chat/stream';
   static const agentRunEndpoint = '/agent/run';

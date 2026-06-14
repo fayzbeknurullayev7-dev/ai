@@ -22,6 +22,9 @@ flutter/.flutter-plugins
 flutter/.flutter-plugins-dependencies
 flutter/.packages
 
+# ---- Generatsiya natijalari ------------------------------------------------
+backend/generated_slides/
+
 # ---- Docker / runtime ------------------------------------------------------
 *.log
 
