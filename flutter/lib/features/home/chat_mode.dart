@@ -16,6 +16,14 @@ enum ChatMode {
         _ => null,
       };
 
+  /// Asosiy chatdan yuborilganda ishlatiladigan rejim ("chat" | "image" |
+  /// "code"). Slayd/Video bu yerga kelmaydi (alohida "tez kunda" sahifa).
+  String get sendMode => switch (this) {
+        ChatMode.image => 'image',
+        ChatMode.code => 'code',
+        _ => 'chat',
+      };
+
   /// Tab yorlig'i (pastki bar).
   String get label => switch (this) {
         ChatMode.chat => 'Chat',

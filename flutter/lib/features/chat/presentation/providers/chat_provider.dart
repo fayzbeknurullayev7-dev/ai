@@ -74,6 +74,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
   // "Qayta urinish" uchun oxirgi so'rov konteksti.
   String? _lastMessage;
   List<ChatMessage> _lastHistory = const [];
+  // Oxirgi yuborilgan rejim ("chat" | "image" | "code") — retry uchun.
+  String _lastMode = 'chat';
 
   ChatNotifier(this._streamUseCase, this._store)
       : super(const ChatState()) {
@@ -132,7 +134,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 
   /// Yangi xabar yuboradi: user bubble qo'shadi va oqimni boshlaydi.
-  Future<void> sendMessage(String text) async {
+  /// [mode] — "chat" (umumiy yordamchi), "image" (rasm yaratish) yoki "code".
+  Future<void> sendMessage(String text, {String mode = 'chat'}) async {
     final trimmed = text.trim();
     if (trimmed.isEmpty || state.isStreaming) return;
 
@@ -146,7 +149,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     state = state.copyWith(messages: [...state.messages, userMsg]);
     await _persistActive(); // user xabari yo'qolmasin
 
-    await _runStream(trimmed, history);
+    await _runStream(trimmed, history, mode);
   }
 
   /// Oxirgi muvaffaqiyatsiz so'rovni qaytadan yuboradi.
@@ -171,7 +174,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
     }
     state = state.copyWith(messages: cleaned);
 
-    await _runStream(msg, _lastHistory);
+    await _runStream(msg, _lastHistory, _lastMode);
   }
 
   /// Joriy oqimni to'xtatadi (foydalanuvchi "⏹ To'xtatish" bossa).
@@ -182,9 +185,11 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 
   // ---- Oqim yadrosi --------------------------------------------------------
-  Future<void> _runStream(String text, List<ChatMessage> history) async {
+  Future<void> _runStream(
+      String text, List<ChatMessage> history, String mode) async {
     _lastMessage = text;
     _lastHistory = history;
+    _lastMode = mode;
 
     final cancelToken = CancelToken();
     _cancelToken = cancelToken;
@@ -225,10 +230,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
         message: text,
         history: history,
         sessionId: _sessionId,
-        planner: state.plannerMode,
-        // Chat tabi → "chat" mode (backend: PlannerAgent umumiy yordamchi).
-        // Planner rejimi yoqilsa repo /agent/stream'ga o'tadi (mode e'tiborsiz).
-        mode: 'chat',
+        // Planner faqat "chat" rejimida (umumiy yordamchi) qo'llanadi.
+        // "image"/"code" rejimlari /chat/stream orqali mos agentga ketadi.
+        planner: mode == 'chat' && state.plannerMode,
+        mode: mode,
         cancelToken: cancelToken,
       );
 

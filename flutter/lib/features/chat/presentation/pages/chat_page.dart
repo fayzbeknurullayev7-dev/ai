@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../home/chat_mode.dart';
+import '../../../home/presentation/providers/home_mode_provider.dart';
 import '../../../home/presentation/widgets/mode_picker_sheet.dart';
 import '../../domain/entities/conversation.dart';
 import '../providers/chat_provider.dart';
@@ -69,6 +71,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(chatProvider);
     final user = ref.watch(authProvider).user;
+    final mode = ref.watch(homeModeProvider);
 
     // Yangi xabar/oqim kelganda pastga skroll.
     ref.listen(chatProvider, (_, __) => _autoScroll());
@@ -122,7 +125,12 @@ class _ChatPageState extends ConsumerState<ChatPage> {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            if (state.plannerMode) ...[
+            // Joriy rejim belgisi (Chat'dan boshqa bo'lsa: RASM / KOD).
+            if (mode != ChatMode.chat) ...[
+              const SizedBox(width: 8),
+              _ModeBadge(mode: mode),
+            ],
+            if (mode == ChatMode.chat && state.plannerMode) ...[
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -159,8 +167,10 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           Expanded(
             child: state.messages.isEmpty
                 ? _EmptyState(
-                    onSuggestion: (text) =>
-                        ref.read(chatProvider.notifier).sendMessage(text),
+                    mode: mode,
+                    onSuggestion: (text) => ref
+                        .read(chatProvider.notifier)
+                        .sendMessage(text, mode: mode.sendMode),
                   )
                 : ListView.builder(
                     controller: _scrollController,
@@ -181,7 +191,11 @@ class _ChatPageState extends ConsumerState<ChatPage> {
           ChatInput(
             isStreaming: state.isStreaming,
             plannerMode: state.plannerMode,
-            onSend: (text) => ref.read(chatProvider.notifier).sendMessage(text),
+            hint: mode == ChatMode.chat ? 'Ask anything' : mode.inputHint,
+            showPlanner: mode == ChatMode.chat,
+            onSend: (text) => ref
+                .read(chatProvider.notifier)
+                .sendMessage(text, mode: mode.sendMode),
             onStop: () => ref.read(chatProvider.notifier).stopStream(),
             onTogglePlanner: () =>
                 ref.read(chatProvider.notifier).togglePlannerMode(),
@@ -200,17 +214,28 @@ class _ChatPageState extends ConsumerState<ChatPage> {
   }
 }
 
-/// Bo'sh holat: markazda savol + taklif chiplari.
+/// Bo'sh holat: markazda savol + taklif chiplari (joriy rejimga moslashadi).
 class _EmptyState extends StatelessWidget {
+  final ChatMode mode;
   final void Function(String) onSuggestion;
-  const _EmptyState({required this.onSuggestion});
+  const _EmptyState({required this.mode, required this.onSuggestion});
 
-  static const _suggestions = [
-    ('Python\'da kod yoz', Icons.code),
-    ('Rasmni tahlil qil', Icons.image_outlined),
+  static const _chatSuggestions = [
     ('G\'oya ber', Icons.lightbulb_outline),
     ('Matnni tarjima qil', Icons.translate),
+    ('Savol ber', Icons.help_outline),
+    ('Reja tuz', Icons.checklist_outlined),
   ];
+
+  String get _title => switch (mode) {
+        ChatMode.chat => 'What can I help with?',
+        _ => mode.emptyTitle,
+      };
+
+  List<(String, IconData)> get _suggestions => switch (mode) {
+        ChatMode.chat => _chatSuggestions,
+        _ => mode.suggestions,
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -220,10 +245,22 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'What can I help with?',
+            if (mode != ChatMode.chat) ...[
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: ChatColors.accentSoft,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(mode.activeIcon,
+                    size: 32, color: ChatColors.accent),
+              ),
+              const SizedBox(height: 20),
+            ],
+            Text(
+              _title,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 color: ChatColors.text,
                 fontSize: 26,
                 fontWeight: FontWeight.w600,
@@ -245,6 +282,39 @@ class _EmptyState extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// App bar'dagi joriy rejim belgisi (RASM / KOD).
+class _ModeBadge extends StatelessWidget {
+  final ChatMode mode;
+  const _ModeBadge({required this.mode});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: ChatColors.accentSoft,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(mode.activeIcon, size: 11, color: ChatColors.accent),
+          const SizedBox(width: 4),
+          Text(
+            mode.label.toUpperCase(),
+            style: const TextStyle(
+              color: ChatColors.accent,
+              fontSize: 9,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ],
       ),
     );
   }

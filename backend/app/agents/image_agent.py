@@ -4,9 +4,11 @@ from app.agents.base_agent import BaseAgent, AgentResult
 from app.core.config import settings
 from app.schemas.chat import Message
 
-# Gemini rasm yaratish modeli (AI Studio / Generative Language API, free-tier).
+# Gemini rasm yaratish modeli (AI Studio / Generative Language API).
 # Matn + rasmni bitta javobda qaytaradi (responseModalities: TEXT, IMAGE).
-_IMAGE_MODEL = "gemini-2.0-flash-preview-image-generation"
+# Avval eng kuchli model sinaladi; ishlamasa (model topilmasa/xato) — fallback.
+_PRIMARY_IMAGE_MODEL = "gemini-3-pro-image"
+_FALLBACK_IMAGE_MODEL = "gemini-2.0-flash-preview-image-generation"
 _API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 
 
@@ -15,18 +17,23 @@ class ImageAgent(BaseAgent):
 
     Foydalanuvchi "rasm yarat / rasm chiz / image" desa, router shu agentga
     yo'naltiradi. Natija SSE oqimida `image` (base64) eventi sifatida keladi.
+
+    Model tanlash: avval `gemini-3-pro-image`, u ishlamasa avtomatik ravishda
+    `gemini-2.0-flash-preview-image-generation` ga qaytadi (runtime fallback).
     """
 
     def __init__(self):
         self._api_key = settings.GEMINI_API_KEY
-        self._model = _IMAGE_MODEL
+        # Sinab ko'rish tartibi: birinchisi muvaffaqiyatsiz bo'lsa keyingisi.
+        self._models = [_PRIMARY_IMAGE_MODEL, _FALLBACK_IMAGE_MODEL]
+        self._model = _PRIMARY_IMAGE_MODEL
 
     @property
     def name(self) -> str:
         return "ImageAgent"
 
-    def _url(self) -> str:
-        return f"{_API_BASE}/{self._model}:generateContent?key={self._api_key}"
+    def _url(self, model: str) -> str:
+        return f"{_API_BASE}/{model}:generateContent?key={self._api_key}"
 
     @staticmethod
     def _clean_prompt(message: str) -> str:
@@ -48,7 +55,12 @@ class ImageAgent(BaseAgent):
         return cleaned or message.strip()
 
     async def _generate(self, prompt: str) -> Dict[str, Any]:
-        """Gemini API'ga so'rov yuborib, {text, image_b64, mime} qaytaradi."""
+        """Gemini API'ga so'rov yuborib, {text, image_b64, mime, model} qaytaradi.
+
+        Modellarni navbat bilan sinaydi: birinchisi xato bersa (model topilmadi,
+        4xx/5xx yoki rasm qaytarmasa) — keyingisiga o'tadi. Hammasi muvaffaqiyatsiz
+        bo'lsa oxirgi xatoni ko'taradi.
+        """
         if not self._api_key:
             raise RuntimeError("GEMINI_API_KEY o'rnatilmagan")
 
@@ -56,14 +68,28 @@ class ImageAgent(BaseAgent):
             "contents": [{"parts": [{"text": prompt}]}],
             "generationConfig": {"responseModalities": ["TEXT", "IMAGE"]},
         }
+        last_error: Exception | None = None
         async with httpx.AsyncClient(timeout=90.0) as client:
-            resp = await client.post(self._url(), json=payload)
-            if resp.status_code != 200:
-                raise RuntimeError(
-                    f"Gemini image API {resp.status_code}: {resp.text[:300]}"
-                )
-            data = resp.json()
+            for model in self._models:
+                try:
+                    resp = await client.post(self._url(model), json=payload)
+                    if resp.status_code != 200:
+                        raise RuntimeError(
+                            f"Gemini image API ({model}) {resp.status_code}: "
+                            f"{resp.text[:300]}"
+                        )
+                    parsed = self._parse_response(resp.json())
+                    parsed["model"] = model
+                    return parsed
+                except Exception as e:  # bu modelda ishlamadi — keyingisiga o'tamiz
+                    last_error = e
+                    continue
 
+        raise last_error or RuntimeError("Rasm yaratib bo'lmadi (noma'lum xato).")
+
+    @staticmethod
+    def _parse_response(data: Dict[str, Any]) -> Dict[str, Any]:
+        """Gemini javobidan {text, image_b64, mime} ajratadi (rasm bo'lmasa xato)."""
         text_out, image_b64, mime = "", None, "image/png"
         candidates = data.get("candidates") or []
         if candidates:
@@ -87,7 +113,9 @@ class ImageAgent(BaseAgent):
         result = await self._generate(prompt)
         caption = result["text"] or f'"{prompt}" uchun rasm tayyor.'
         return AgentResult(
-            content=caption, agent_name=self.name, model_name=self._model
+            content=caption,
+            agent_name=self.name,
+            model_name=result.get("model", self._model),
         )
 
     async def stream(

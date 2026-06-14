@@ -53,11 +53,17 @@ class KnowledgeSearchTool(BaseTool):
         if not query:
             return ToolResult(success=False, output="", error="qidiruv so'rovi bo'sh")
 
-        top_k = args.get("top_k") or self._top_k
-        try:
-            top_k = max(1, int(top_k))
-        except (TypeError, ValueError):
+        # LLM top_k'ni ba'zan matn ("4") yoki float (4.0) sifatida yuboradi —
+        # uni har doim butun songa (integer) keltiramiz, aks holda kb.query /
+        # vektor ombori slicing'ida xato bo'ladi.
+        raw_top_k = args.get("top_k")
+        if raw_top_k is None or raw_top_k == "":
             top_k = self._top_k
+        else:
+            try:
+                top_k = max(1, int(float(raw_top_k)))
+            except (TypeError, ValueError):
+                top_k = self._top_k
 
         # session_id = user.id → tool faqat shu foydalanuvchining bilim bazasidan qidiradi.
         owner = context.session_id or None

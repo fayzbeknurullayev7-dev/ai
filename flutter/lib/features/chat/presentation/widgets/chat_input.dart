@@ -10,6 +10,8 @@ class ChatInput extends StatefulWidget {
   final VoidCallback onMore;
   final bool isStreaming;
   final bool plannerMode;
+  final String hint;
+  final bool showPlanner;
 
   const ChatInput({
     super.key,
@@ -19,6 +21,8 @@ class ChatInput extends StatefulWidget {
     required this.onMore,
     required this.isStreaming,
     required this.plannerMode,
+    this.hint = 'Ask anything',
+    this.showPlanner = true,
   });
 
   @override
@@ -89,12 +93,13 @@ class _ChatInputState extends State<ChatInput> {
                 textInputAction: TextInputAction.newline,
                 style: const TextStyle(color: ChatColors.text, fontSize: 15),
                 cursorColor: ChatColors.accent,
-                decoration: const InputDecoration(
-                  hintText: 'Ask anything',
-                  hintStyle: TextStyle(color: ChatColors.muted, fontSize: 15),
+                decoration: InputDecoration(
+                  hintText: widget.hint,
+                  hintStyle: const TextStyle(
+                      color: ChatColors.muted, fontSize: 15),
                   border: InputBorder.none,
                   isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
                 ),
               ),
             ),
@@ -112,12 +117,13 @@ class _ChatInputState extends State<ChatInput> {
                   tooltip: 'Web qidiruv',
                   onTap: () => _soon('Web qidiruv'),
                 ),
-                _IconBtn(
-                  icon: Icons.lightbulb_outline,
-                  tooltip: 'Planner rejimi',
-                  active: widget.plannerMode,
-                  onTap: widget.onTogglePlanner,
-                ),
+                if (widget.showPlanner)
+                  _IconBtn(
+                    icon: Icons.lightbulb_outline,
+                    tooltip: 'Planner rejimi',
+                    active: widget.plannerMode,
+                    onTap: widget.onTogglePlanner,
+                  ),
                 _IconBtn(
                   icon: Icons.more_horiz,
                   tooltip: 'Rejimni tanlash',
