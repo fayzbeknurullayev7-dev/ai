@@ -36,105 +36,183 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     if (ok && mounted) context.go('/chat');
   }
 
+  void _soon(String label) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label — tez orada'),
+        backgroundColor: kAuthField,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0F14),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Icon(Icons.auto_awesome,
-                          size: 56, color: Color(0xFF6C63FF))
-                      .animate()
-                      .scale(duration: 500.ms, curve: Curves.elasticOut),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Hisob yaratish',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFFE8EAF0),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Nexus AI bilan ishlashni boshlang',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFF8892A4), fontSize: 14),
-                  ),
-                  const SizedBox(height: 32),
-                  AuthTextField(
-                    controller: _fullName,
-                    hint: 'To\'liq ism (ixtiyoriy)',
-                    icon: Icons.person_outline,
-                    keyboardType: TextInputType.name,
-                  ),
-                  const SizedBox(height: 14),
-                  AuthTextField(
-                    controller: _email,
-                    hint: 'Email',
-                    icon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: validateEmail,
-                  ),
-                  const SizedBox(height: 14),
-                  AuthTextField(
-                    controller: _password,
-                    hint: 'Parol (kamida 6 belgi)',
-                    icon: Icons.lock_outline,
-                    obscure: true,
-                    textInputAction: TextInputAction.done,
-                    validator: validatePassword,
-                    onSubmitted: (_) => _submit(),
-                  ),
-                  if (state.error != null) ...[
-                    const SizedBox(height: 14),
-                    Text(
-                      state.error!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.redAccent, fontSize: 13),
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  AuthButton(
-                    label: 'Ro\'yxatdan o\'tish',
-                    isLoading: state.isLoading,
-                    onPressed: _submit,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+      body: AuroraBackground(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
-                        'Hisobingiz bormi? ',
-                        style: TextStyle(color: Color(0xFF8892A4)),
-                      ),
-                      GestureDetector(
-                        onTap: () => context.go('/login'),
-                        child: const Text(
-                          'Kirish',
-                          style: TextStyle(
-                            color: Color(0xFF6C63FF),
-                            fontWeight: FontWeight.w600,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [kAuthAccent, kAuthAccent2],
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: kAuthAccent.withValues(alpha: 0.4),
+                                  blurRadius: 16,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.auto_awesome,
+                                color: Colors.white, size: 26),
                           ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Nexus AI',
+                            style: TextStyle(
+                              color: kAuthText,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      )
+                          .animate()
+                          .fadeIn(duration: 500.ms)
+                          .slideY(begin: -0.2, curve: Curves.easeOut),
+                      const SizedBox(height: 40),
+                      const Text(
+                        'Create Your Chatbot AI\nAccount Now',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 26,
+                          height: 1.25,
+                          fontWeight: FontWeight.w800,
+                          color: kAuthText,
                         ),
+                      ).animate().fadeIn(delay: 150.ms),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Nexus AI bilan ishlashni boshlang',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: kAuthMuted, fontSize: 14),
+                      ).animate().fadeIn(delay: 250.ms),
+                      const SizedBox(height: 32),
+                      AuthTextField(
+                        controller: _fullName,
+                        hint: 'To\'liq ism (ixtiyoriy)',
+                        icon: Icons.person_outline,
+                        keyboardType: TextInputType.name,
+                      ),
+                      const SizedBox(height: 16),
+                      AuthTextField(
+                        controller: _email,
+                        hint: 'Email',
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: validateEmail,
+                      ),
+                      const SizedBox(height: 16),
+                      AuthTextField(
+                        controller: _password,
+                        hint: 'Parol (kamida 6 belgi)',
+                        icon: Icons.lock_outline,
+                        obscure: true,
+                        textInputAction: TextInputAction.done,
+                        validator: validatePassword,
+                        onSubmitted: (_) => _submit(),
+                      ),
+                      if (state.error != null) ...[
+                        const SizedBox(height: 14),
+                        Text(
+                          state.error!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              color: Colors.redAccent, fontSize: 13),
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+                      AuthButton(
+                        label: 'Create account',
+                        isLoading: state.isLoading,
+                        onPressed: _submit,
+                      ),
+                      const SizedBox(height: 24),
+                      const OrDivider(label: 'Or continue with'),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SocialButton(
+                            onTap: () => _soon('Google'),
+                            child: const Text(
+                              'G',
+                              style: TextStyle(
+                                color: kAuthText,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          SocialButton(
+                            onTap: () => _soon('Apple'),
+                            child: const Icon(Icons.apple,
+                                color: kAuthText, size: 26),
+                          ),
+                          const SizedBox(width: 16),
+                          SocialButton(
+                            onTap: () => _soon('Facebook'),
+                            child: const Icon(Icons.facebook,
+                                color: Color(0xFF1877F2), size: 26),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Hisobingiz bormi? ',
+                            style: TextStyle(color: kAuthMuted),
+                          ),
+                          GestureDetector(
+                            onTap: () => context.go('/login'),
+                            child: const Text(
+                              'Login',
+                              style: TextStyle(
+                                color: kAuthLink,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ).animate().fadeIn(duration: 400.ms),
               ),
-            ).animate().fadeIn(duration: 400.ms),
+            ),
           ),
         ),
       ),

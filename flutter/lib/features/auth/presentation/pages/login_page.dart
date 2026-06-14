@@ -16,6 +16,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  bool _rememberMe = true;
 
   @override
   void dispose() {
@@ -33,101 +34,250 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (ok && mounted) context.go('/chat');
   }
 
+  void _soon(String label) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$label — tez orada'),
+        backgroundColor: kAuthField,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0D0F14),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Icon(Icons.auto_awesome,
-                          size: 56, color: Color(0xFF6C63FF))
-                      .animate()
-                      .scale(duration: 500.ms, curve: Curves.elasticOut),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Xush kelibsiz',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFFE8EAF0),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'Nexus AI hisobingizga kiring',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Color(0xFF8892A4), fontSize: 14),
-                  ),
-                  const SizedBox(height: 32),
-                  AuthTextField(
-                    controller: _email,
-                    hint: 'Email',
-                    icon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    validator: validateEmail,
-                  ),
-                  const SizedBox(height: 14),
-                  AuthTextField(
-                    controller: _password,
-                    hint: 'Parol',
-                    icon: Icons.lock_outline,
-                    obscure: true,
-                    textInputAction: TextInputAction.done,
-                    validator: validatePassword,
-                    onSubmitted: (_) => _submit(),
-                  ),
-                  if (state.error != null) ...[
-                    const SizedBox(height: 14),
-                    Text(
-                      state.error!,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          color: Colors.redAccent, fontSize: 13),
-                    ),
-                  ],
-                  const SizedBox(height: 24),
-                  AuthButton(
-                    label: 'Kirish',
-                    isLoading: state.isLoading,
-                    onPressed: _submit,
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+      body: AuroraBackground(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Text(
-                        'Hisobingiz yo\'qmi? ',
-                        style: TextStyle(color: Color(0xFF8892A4)),
-                      ),
-                      GestureDetector(
-                        onTap: () => context.go('/register'),
-                        child: const Text(
-                          'Ro\'yxatdan o\'tish',
-                          style: TextStyle(
-                            color: Color(0xFF6C63FF),
-                            fontWeight: FontWeight.w600,
+                      // Logo + nom
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [kAuthAccent, kAuthAccent2],
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: kAuthAccent.withValues(alpha: 0.4),
+                                  blurRadius: 16,
+                                ),
+                              ],
+                            ),
+                            child: const Icon(Icons.auto_awesome,
+                                color: Colors.white, size: 26),
                           ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Nexus AI',
+                            style: TextStyle(
+                              color: kAuthText,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      )
+                          .animate()
+                          .fadeIn(duration: 500.ms)
+                          .slideY(begin: -0.2, curve: Curves.easeOut),
+                      const SizedBox(height: 40),
+                      const Text(
+                        'Access Your Chatbot AI\nAccount Now',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 26,
+                          height: 1.25,
+                          fontWeight: FontWeight.w800,
+                          color: kAuthText,
                         ),
+                      ).animate().fadeIn(delay: 150.ms),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Hisobingizga kirib, suhbatni davom ettiring',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: kAuthMuted, fontSize: 14),
+                      ).animate().fadeIn(delay: 250.ms),
+                      const SizedBox(height: 32),
+                      AuthTextField(
+                        controller: _email,
+                        hint: 'Email',
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: validateEmail,
+                      ),
+                      const SizedBox(height: 16),
+                      AuthTextField(
+                        controller: _password,
+                        hint: 'Parol',
+                        icon: Icons.lock_outline,
+                        obscure: true,
+                        textInputAction: TextInputAction.done,
+                        validator: validatePassword,
+                        onSubmitted: (_) => _submit(),
+                      ),
+                      const SizedBox(height: 12),
+                      _RememberRow(
+                        value: _rememberMe,
+                        onChanged: (v) => setState(() => _rememberMe = v),
+                        onForgot: () => _soon('Parolni tiklash'),
+                      ),
+                      if (state.error != null) ...[
+                        const SizedBox(height: 14),
+                        Text(
+                          state.error!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              color: Colors.redAccent, fontSize: 13),
+                        ),
+                      ],
+                      const SizedBox(height: 24),
+                      AuthButton(
+                        label: 'Login',
+                        isLoading: state.isLoading,
+                        onPressed: _submit,
+                      ),
+                      const SizedBox(height: 24),
+                      const OrDivider(label: 'Or continue with'),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SocialButton(
+                            onTap: () => _soon('Google'),
+                            child: const Text(
+                              'G',
+                              style: TextStyle(
+                                color: kAuthText,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          SocialButton(
+                            onTap: () => _soon('Apple'),
+                            child: const Icon(Icons.apple,
+                                color: kAuthText, size: 26),
+                          ),
+                          const SizedBox(width: 16),
+                          SocialButton(
+                            onTap: () => _soon('Facebook'),
+                            child: const Icon(Icons.facebook,
+                                color: Color(0xFF1877F2), size: 26),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 28),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Hisobingiz yo\'qmi? ',
+                            style: TextStyle(color: kAuthMuted),
+                          ),
+                          GestureDetector(
+                            onTap: () => context.go('/register'),
+                            child: const Text(
+                              'Create an account',
+                              style: TextStyle(
+                                color: kAuthLink,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ).animate().fadeIn(duration: 400.ms),
               ),
-            ).animate().fadeIn(duration: 400.ms),
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// "Remember me" checkbox + "Forget password?" havola qatori.
+class _RememberRow extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final VoidCallback onForgot;
+
+  const _RememberRow({
+    required this.value,
+    required this.onChanged,
+    required this.onForgot,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        InkWell(
+          onTap: () => onChanged(!value),
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: Checkbox(
+                    value: value,
+                    onChanged: (v) => onChanged(v ?? false),
+                    activeColor: kAuthAccent,
+                    checkColor: Colors.white,
+                    side: const BorderSide(color: kAuthMuted, width: 1.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Remember me',
+                  style: TextStyle(color: kAuthMuted, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: onForgot,
+          child: const Text(
+            'Forget password?',
+            style: TextStyle(
+              color: kAuthLink,
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

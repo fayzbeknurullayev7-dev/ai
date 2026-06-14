@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'chat_colors.dart';
 
 class TypingIndicator extends StatelessWidget {
   const TypingIndicator({super.key});
@@ -8,28 +9,31 @@ class TypingIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: const Color(0xFF1E2535),
-          borderRadius: BorderRadius.circular(18),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 16),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Nexus AI yozmoqda',
-              style: TextStyle(color: Color(0xFF8892A4), fontSize: 13),
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [ChatColors.accent, Color(0xFF6C63FF)],
+                ),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child:
+                  const Icon(Icons.auto_awesome, color: Colors.white, size: 17),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 12),
             ...List.generate(3, (i) {
               return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 2),
-                width: 6,
-                height: 6,
+                margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                width: 7,
+                height: 7,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF6C63FF),
+                  color: ChatColors.muted,
                   shape: BoxShape.circle,
                 ),
               )

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/tool_step.dart';
+import 'chat_colors.dart';
 
-/// Planner Agent ReAct izini ko'rsatadigan yig'iladigan panel.
+/// Planner Agent ReAct izini ko'rsatadigan yig'iladigan panel (yorug' tema).
 /// Assistant javobi `steps` bilan kelganda message_bubble ichida chiziladi.
 class AgentStepsPanel extends StatelessWidget {
   final List<ToolStep> steps;
@@ -28,25 +29,24 @@ class AgentStepsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Theme(
-      // ExpansionTile divider/randlarni neytrallaymiz.
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: Container(
-        margin: const EdgeInsets.only(top: 8),
+        margin: const EdgeInsets.only(top: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFF0D0F14).withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFF2A3040)),
+          color: ChatColors.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: ChatColors.border),
         ),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 12),
           childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
           dense: true,
           leading: const Icon(Icons.account_tree_outlined,
-              color: Color(0xFF6C63FF), size: 18),
+              color: ChatColors.accent, size: 18),
           title: Text(
             'Agent rejasi · ${steps.length} qadam',
             style: const TextStyle(
-              color: Color(0xFF8B85FF),
+              color: ChatColors.accent,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -65,13 +65,12 @@ class AgentStepsPanel extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(_iconFor(s.tool),
-                  size: 14, color: const Color(0xFF8892A4)),
+              Icon(_iconFor(s.tool), size: 14, color: ChatColors.textSecondary),
               const SizedBox(width: 6),
               Text(
                 '${s.step}. ${s.tool}',
                 style: const TextStyle(
-                  color: Color(0xFFE8EAF0),
+                  color: ChatColors.text,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -81,8 +80,8 @@ class AgentStepsPanel extends StatelessWidget {
                 s.success ? Icons.check_circle : Icons.error_outline,
                 size: 13,
                 color: s.success
-                    ? const Color(0xFF4ADE80)
-                    : Colors.redAccent,
+                    ? const Color(0xFF16A34A)
+                    : const Color(0xFFE11D48),
               ),
             ],
           ),
@@ -92,7 +91,7 @@ class AgentStepsPanel extends StatelessWidget {
               child: Text(
                 s.args.toString(),
                 style: const TextStyle(
-                  color: Color(0xFF6B7280),
+                  color: ChatColors.muted,
                   fontSize: 11,
                   fontFamily: 'monospace',
                 ),
@@ -103,7 +102,7 @@ class AgentStepsPanel extends StatelessWidget {
             child: Text(
               s.observation,
               style: const TextStyle(
-                color: Color(0xFF8892A4),
+                color: ChatColors.textSecondary,
                 fontSize: 11.5,
                 height: 1.3,
               ),
