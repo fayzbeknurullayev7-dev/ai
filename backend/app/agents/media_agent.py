@@ -11,11 +11,11 @@ Uzbek tilida javob ber."""
 
 
 class MediaAgent(BaseAgent):
-    """Gemini (gemini-1.5-flash) orqali media va multimodal vazifalar agenti."""
+    """Gemini (gemini-2.5-flash) orqali media va multimodal vazifalar agenti."""
 
     def __init__(self):
         genai.configure(api_key=settings.GEMINI_API_KEY)
-        self._model_name = "gemini-1.5-flash"
+        self._model_name = "gemini-2.5-flash"
         self._model = genai.GenerativeModel(
             model_name=self._model_name,
             system_instruction=SYSTEM_PROMPT,

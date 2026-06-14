@@ -7,6 +7,7 @@ class ChatInput extends StatefulWidget {
   final void Function(String) onSend;
   final VoidCallback onStop;
   final VoidCallback onTogglePlanner;
+  final VoidCallback onMore;
   final bool isStreaming;
   final bool plannerMode;
 
@@ -15,6 +16,7 @@ class ChatInput extends StatefulWidget {
     required this.onSend,
     required this.onStop,
     required this.onTogglePlanner,
+    required this.onMore,
     required this.isStreaming,
     required this.plannerMode,
   });
@@ -118,8 +120,8 @@ class _ChatInputState extends State<ChatInput> {
                 ),
                 _IconBtn(
                   icon: Icons.more_horiz,
-                  tooltip: 'Yana',
-                  onTap: () => _soon('Qo\'shimcha amallar'),
+                  tooltip: 'Rejimni tanlash',
+                  onTap: widget.onMore,
                 ),
                 const Spacer(),
                 _SendButton(

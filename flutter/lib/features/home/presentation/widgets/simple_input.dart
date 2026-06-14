@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../../../chat/presentation/widgets/chat_colors.dart';
 
-/// Rasm/Kod tablari uchun minimal kompozitor: matn maydoni + yuborish/to'xtatish
-/// tugmasi. ChatInput'dan farqi — planner/attach tugmalari yo'q.
+/// Rasm/Kod tablari uchun minimal kompozitor: rejim ("...") + matn maydoni +
+/// yuborish/to'xtatish tugmasi. ChatInput'dan farqi — planner/attach yo'q.
 class SimpleInput extends StatefulWidget {
   final void Function(String) onSend;
   final VoidCallback onStop;
+  final VoidCallback onMore;
   final bool isStreaming;
   final String hint;
 
@@ -13,6 +14,7 @@ class SimpleInput extends StatefulWidget {
     super.key,
     required this.onSend,
     required this.onStop,
+    required this.onMore,
     required this.isStreaming,
     required this.hint,
   });
@@ -64,6 +66,15 @@ class _SimpleInputState extends State<SimpleInput> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            // Rejim tanlash ("...") — bottom sheet ochadi.
+            IconButton(
+              icon: const Icon(Icons.more_horiz, size: 22),
+              tooltip: 'Rejimni tanlash',
+              onPressed: widget.onMore,
+              color: ChatColors.textSecondary,
+              visualDensity: VisualDensity.compact,
+            ),
+            const SizedBox(width: 2),
             Expanded(
               child: TextField(
                 controller: _controller,

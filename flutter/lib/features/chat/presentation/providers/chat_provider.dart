@@ -226,6 +226,9 @@ class ChatNotifier extends StateNotifier<ChatState> {
         history: history,
         sessionId: _sessionId,
         planner: state.plannerMode,
+        // Chat tabi → "chat" mode (backend: PlannerAgent umumiy yordamchi).
+        // Planner rejimi yoqilsa repo /agent/stream'ga o'tadi (mode e'tiborsiz).
+        mode: 'chat',
         cancelToken: cancelToken,
       );
 

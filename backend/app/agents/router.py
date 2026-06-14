@@ -128,7 +128,9 @@ class AgentRouter:
             "code": self._coder_pro,
             "media": self._media,
             "planner": self._planner,
-            "chat": self._coder,
+            # Chat tabi — umumiy yordamchi (PlannerAgent): oddiy suhbat, kod
+            # faqat aniq so'ralganda. CoderAgent emas.
+            "chat": self._planner,
         }.get(mode.lower())
 
     def _resolve(self, message: str, mode: str | None) -> BaseAgent:

@@ -6,6 +6,7 @@ import '../../../chat/presentation/widgets/message_bubble.dart';
 import '../../../chat/presentation/widgets/typing_indicator.dart';
 import '../../chat_mode.dart';
 import '../providers/mode_chat_provider.dart';
+import '../widgets/mode_picker_sheet.dart';
 import '../widgets/simple_input.dart';
 
 /// Rasm va Kod tablari uchun umumiy sahifa. `mode` orqali agent (image/code),
@@ -107,6 +108,7 @@ class _ModeChatPageState extends ConsumerState<ModeChatPage> {
             hint: mode.inputHint,
             onSend: notifier.sendMessage,
             onStop: notifier.stopStream,
+            onMore: () => showModePickerSheet(context, ref),
           ),
         ],
       ),

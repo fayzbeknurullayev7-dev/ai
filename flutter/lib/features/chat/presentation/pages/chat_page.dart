@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../home/presentation/widgets/mode_picker_sheet.dart';
 import '../../domain/entities/conversation.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/chat_colors.dart';
@@ -184,6 +185,7 @@ class _ChatPageState extends ConsumerState<ChatPage> {
             onStop: () => ref.read(chatProvider.notifier).stopStream(),
             onTogglePlanner: () =>
                 ref.read(chatProvider.notifier).togglePlannerMode(),
+            onMore: () => showModePickerSheet(context, ref),
           ),
           const Padding(
             padding: EdgeInsets.only(bottom: 10, top: 2),

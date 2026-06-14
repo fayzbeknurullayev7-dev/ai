@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../chat/presentation/widgets/chat_colors.dart';
 import '../../chat_mode.dart';
+import '../widgets/mode_picker_sheet.dart';
 
 /// Hali tayyor bo'lmagan tablar (Slayd, Video) uchun "Tez kunda" sahifasi.
-class ComingSoonPage extends StatelessWidget {
+class ComingSoonPage extends ConsumerWidget {
   final ChatMode mode;
   const ComingSoonPage({super.key, required this.mode});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: ChatColors.bg,
       appBar: AppBar(
@@ -16,6 +18,7 @@ class ComingSoonPage extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
+        iconTheme: const IconThemeData(color: ChatColors.text),
         title: Text(
           mode.label,
           style: const TextStyle(
@@ -24,6 +27,13 @@ class ComingSoonPage extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_horiz),
+            tooltip: 'Rejimni tanlash',
+            onPressed: () => showModePickerSheet(context, ref),
+          ),
+        ],
       ),
       body: Center(
         child: Column(
