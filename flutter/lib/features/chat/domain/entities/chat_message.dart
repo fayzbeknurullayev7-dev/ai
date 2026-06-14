@@ -12,6 +12,9 @@ class ChatMessage {
   /// AI yaratgan rasm (PNG/JPEG) base64 ko'rinishida — bo'lsa bubble'da ko'rsatiladi.
   final String? imageBase64;
 
+  /// AI yaratgan rasm tashqi URL'i (masalan Pollinations.ai) — Image.network.
+  final String? imageUrl;
+
   const ChatMessage({
     required this.id,
     required this.content,
@@ -21,12 +24,15 @@ class ChatMessage {
     this.modelUsed,
     this.steps = const [],
     this.imageBase64,
+    this.imageUrl,
   });
 
   bool get isUser => role == 'user';
   bool get isError => role == 'error';
   bool get hasSteps => steps.isNotEmpty;
-  bool get hasImage => imageBase64 != null && imageBase64!.isNotEmpty;
+  bool get hasImage =>
+      (imageBase64 != null && imageBase64!.isNotEmpty) ||
+      (imageUrl != null && imageUrl!.isNotEmpty);
 
   /// Streaming paytida xabarni inkremental yangilash uchun.
   ChatMessage copyWith({
@@ -35,6 +41,7 @@ class ChatMessage {
     String? modelUsed,
     List<ToolStep>? steps,
     String? imageBase64,
+    String? imageUrl,
   }) {
     return ChatMessage(
       id: id,
@@ -45,6 +52,7 @@ class ChatMessage {
       modelUsed: modelUsed ?? this.modelUsed,
       steps: steps ?? this.steps,
       imageBase64: imageBase64 ?? this.imageBase64,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 
@@ -58,6 +66,7 @@ class ChatMessage {
         'modelUsed': modelUsed,
         'steps': steps.map((s) => s.toJson()).toList(),
         'imageBase64': imageBase64,
+        'imageUrl': imageUrl,
       };
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
@@ -75,6 +84,7 @@ class ChatMessage {
           .map((e) => ToolStep.fromJson(e.cast<String, dynamic>()))
           .toList(),
       imageBase64: json['imageBase64'] as String?,
+      imageUrl: json['imageUrl'] as String?,
     );
   }
 }

@@ -157,8 +157,15 @@ class ChatRepositoryImpl implements ChatRepository {
         return TokenEvent(json['content'] as String? ?? '');
       case 'image':
         final b64 = json['data'] as String? ?? json['base64'] as String?;
-        if (b64 == null || b64.isEmpty) return null;
-        return ImageEvent(b64, caption: json['caption'] as String?);
+        final url = json['image_url'] as String? ?? json['imageUrl'] as String?;
+        final hasB64 = b64 != null && b64.isNotEmpty;
+        final hasUrl = url != null && url.isNotEmpty;
+        if (!hasB64 && !hasUrl) return null;
+        return ImageEvent(
+          base64: hasB64 ? b64 : null,
+          imageUrl: hasUrl ? url : null,
+          caption: json['caption'] as String?,
+        );
       case 'step':
         final step = (json['step'] as Map?)?.cast<String, dynamic>();
         if (step == null) return null;

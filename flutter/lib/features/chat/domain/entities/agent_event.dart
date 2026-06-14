@@ -17,11 +17,13 @@ class TokenEvent extends AgentEvent {
   const TokenEvent(this.content);
 }
 
-/// AI yaratgan rasm (base64) — ixtiyoriy izoh (caption) bilan.
+/// AI yaratgan rasm — base64 (inline) yoki tashqi `imageUrl` (Image.network).
+/// Ixtiyoriy izoh (caption) bilan. Kamida bittasi to'ldiriladi.
 class ImageEvent extends AgentEvent {
-  final String base64;
+  final String? base64;
+  final String? imageUrl;
   final String? caption;
-  const ImageEvent(this.base64, {this.caption});
+  const ImageEvent({this.base64, this.imageUrl, this.caption});
 }
 
 class StepEvent extends AgentEvent {

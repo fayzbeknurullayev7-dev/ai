@@ -100,7 +100,10 @@ class MessageBubble extends StatelessWidget {
                           ),
                         ),
                       if (message.hasImage)
-                        _GeneratedImage(base64Data: message.imageBase64!),
+                        _GeneratedImage(
+                          base64Data: message.imageBase64,
+                          imageUrl: message.imageUrl,
+                        ),
                       if (message.hasSteps) AgentStepsPanel(steps: message.steps),
                     ],
                   ),
@@ -120,51 +123,79 @@ class MessageBubble extends StatelessWidget {
   }
 }
 
-/// AI yaratgan rasm — base64'dan dekod qilib, yumaloq burchakli ko'rsatadi.
+/// AI yaratgan rasm — tashqi URL (Image.network) yoki base64 (Image.memory).
 class _GeneratedImage extends StatelessWidget {
-  final String base64Data;
-  const _GeneratedImage({required this.base64Data});
+  final String? base64Data;
+  final String? imageUrl;
+  const _GeneratedImage({this.base64Data, this.imageUrl});
 
   Uint8List? _decode() {
+    final data = base64Data;
+    if (data == null || data.isEmpty) return null;
     try {
       // `data:image/png;base64,...` prefiksi bo'lsa olib tashlaymiz.
-      final raw = base64Data.contains(',')
-          ? base64Data.substring(base64Data.indexOf(',') + 1)
-          : base64Data;
+      final raw =
+          data.contains(',') ? data.substring(data.indexOf(',') + 1) : data;
       return base64Decode(raw);
     } catch (_) {
       return null;
     }
   }
 
+  Widget _frame(Widget child) => Padding(
+        padding: const EdgeInsets.only(top: 10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: child,
+        ),
+      );
+
+  Widget _message(String text) => Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Text(
+          text,
+          style: const TextStyle(color: ChatColors.muted, fontSize: 13),
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
-    final bytes = _decode();
-    if (bytes == null) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 8),
-        child: Text(
-          'Rasmni ko\'rsatib bo\'lmadi.',
-          style: TextStyle(color: ChatColors.muted, fontSize: 13),
+    // Tashqi URL (masalan Pollinations.ai) — to'g'ridan-to'g'ri tarmoqdan.
+    final url = imageUrl;
+    if (url != null && url.isNotEmpty) {
+      return _frame(
+        Image.network(
+          url,
+          fit: BoxFit.cover,
+          gaplessPlayback: true,
+          loadingBuilder: (ctx, child, progress) {
+            if (progress == null) return child;
+            return const SizedBox(
+              height: 220,
+              child: Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: ChatColors.accent,
+                ),
+              ),
+            );
+          },
+          errorBuilder: (_, __, ___) => _message('Rasmni yuklab bo\'lmadi.'),
         ),
       );
     }
-    return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: Image.memory(
-          bytes,
-          fit: BoxFit.cover,
-          gaplessPlayback: true,
-          errorBuilder: (_, __, ___) => const Padding(
-            padding: EdgeInsets.all(12),
-            child: Text(
-              'Rasmni ochib bo\'lmadi.',
-              style: TextStyle(color: ChatColors.muted, fontSize: 13),
-            ),
-          ),
-        ),
+
+    // Aks holda base64 (inline) rasm.
+    final bytes = _decode();
+    if (bytes == null) {
+      return _message('Rasmni ko\'rsatib bo\'lmadi.');
+    }
+    return _frame(
+      Image.memory(
+        bytes,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        errorBuilder: (_, __, ___) => _message('Rasmni ochib bo\'lmadi.'),
       ),
     );
   }

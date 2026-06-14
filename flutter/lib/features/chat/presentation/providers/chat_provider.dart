@@ -245,12 +245,13 @@ class ChatNotifier extends StateNotifier<ChatState> {
             ensureAssistant();
             _update(
                 assistantId, (m) => m.copyWith(content: m.content + content));
-          case ImageEvent(:final base64, :final caption):
+          case ImageEvent(:final base64, :final imageUrl, :final caption):
             ensureAssistant();
             _update(
               assistantId,
               (m) => m.copyWith(
                 imageBase64: base64,
+                imageUrl: imageUrl,
                 content: caption != null && caption.isNotEmpty
                     ? caption
                     : m.content,
