@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../domain/entities/conversation.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/chat_colors.dart';
 import '../widgets/message_bubble.dart';
@@ -77,10 +78,18 @@ class _ChatPageState extends ConsumerState<ChatPage> {
         userEmail: user?.email ?? '',
         userName: user?.fullName ?? '',
         plannerMode: state.plannerMode,
+        conversations: state.conversations,
+        activeId: state.activeId,
         onNewChat: () {
-          ref.read(chatProvider.notifier).clearChat();
+          ref.read(chatProvider.notifier).newChat();
           Navigator.pop(context);
         },
+        onSelectConversation: (id) {
+          ref.read(chatProvider.notifier).loadConversation(id);
+          Navigator.pop(context);
+        },
+        onDeleteConversation: (id) =>
+            ref.read(chatProvider.notifier).deleteConversation(id),
         onTogglePlanner: () =>
             ref.read(chatProvider.notifier).togglePlannerMode(),
         onLogout: () {
@@ -359,12 +368,16 @@ class _ProfileAvatar extends StatelessWidget {
   }
 }
 
-/// Yon menyu (sidebar): yangi chat, planner rejimi, chiqish.
+/// Yon menyu (sidebar): yangi chat, suhbatlar tarixi, planner rejimi, chiqish.
 class _ChatDrawer extends StatelessWidget {
   final String userEmail;
   final String userName;
   final bool plannerMode;
+  final List<Conversation> conversations;
+  final String? activeId;
   final VoidCallback onNewChat;
+  final void Function(String id) onSelectConversation;
+  final void Function(String id) onDeleteConversation;
   final VoidCallback onTogglePlanner;
   final VoidCallback onLogout;
 
@@ -372,7 +385,11 @@ class _ChatDrawer extends StatelessWidget {
     required this.userEmail,
     required this.userName,
     required this.plannerMode,
+    required this.conversations,
+    required this.activeId,
     required this.onNewChat,
+    required this.onSelectConversation,
+    required this.onDeleteConversation,
     required this.onTogglePlanner,
     required this.onLogout,
   });
@@ -435,7 +452,37 @@ class _ChatDrawer extends StatelessWidget {
                 style: TextStyle(color: ChatColors.textSecondary, fontSize: 12),
               ),
             ),
-            const Spacer(),
+            const Divider(color: ChatColors.border, height: 1),
+            // Suhbatlar tarixi ro'yxati (saqlangan, eng yangisi tepada).
+            Expanded(
+              child: conversations.isEmpty
+                  ? const _EmptyHistory()
+                  : ListView(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(20, 8, 20, 6),
+                          child: Text(
+                            'Suhbatlar tarixi',
+                            style: TextStyle(
+                              color: ChatColors.muted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.4,
+                            ),
+                          ),
+                        ),
+                        for (final c in conversations)
+                          _ConversationTile(
+                            conversation: c,
+                            active: c.id == activeId,
+                            onTap: () => onSelectConversation(c.id),
+                            onDelete: () =>
+                                _confirmDelete(context, c, onDeleteConversation),
+                          ),
+                      ],
+                    ),
+            ),
             const Divider(color: ChatColors.border, height: 1),
             ListTile(
               leading: CircleAvatar(
@@ -475,6 +522,119 @@ class _ChatDrawer extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Suhbatni o'chirishdan oldin tasdiq oynasi.
+  void _confirmDelete(
+    BuildContext context,
+    Conversation c,
+    void Function(String id) onDelete,
+  ) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: const Text('Suhbatni o\'chirish',
+            style: TextStyle(color: ChatColors.text)),
+        content: Text(
+          '"${c.title}" suhbati o\'chirilsinmi?',
+          style: const TextStyle(color: ChatColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Bekor qilish',
+                style: TextStyle(color: ChatColors.textSecondary)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('O\'chirish',
+                style: TextStyle(color: Color(0xFFE11D48))),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) onDelete(c.id);
+  }
+}
+
+/// Tarix bo'sh bo'lganda ko'rsatiladigan holat.
+class _EmptyHistory extends StatelessWidget {
+  const _EmptyHistory();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.history, color: ChatColors.muted, size: 36),
+            SizedBox(height: 12),
+            Text(
+              'Suhbatlar tarixi bo\'sh',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: ChatColors.muted, fontSize: 13),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Sidebar'dagi bitta suhbat qatori (sarlavha + o'chirish tugmasi).
+class _ConversationTile extends StatelessWidget {
+  final Conversation conversation;
+  final bool active;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  const _ConversationTile({
+    required this.conversation,
+    required this.active,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: active ? ChatColors.accentSoft : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: ListTile(
+        dense: true,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        leading: Icon(
+          Icons.chat_bubble_outline,
+          size: 18,
+          color: active ? ChatColors.accent : ChatColors.textSecondary,
+        ),
+        title: Text(
+          conversation.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: active ? ChatColors.accent : ChatColors.text,
+            fontSize: 13.5,
+            fontWeight: active ? FontWeight.w600 : FontWeight.w500,
+          ),
+        ),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete_outline, size: 18),
+          color: ChatColors.muted,
+          tooltip: 'O\'chirish',
+          visualDensity: VisualDensity.compact,
+          onPressed: onDelete,
+        ),
+        onTap: onTap,
       ),
     );
   }

@@ -189,6 +189,107 @@ class OrDivider extends StatelessWidget {
   }
 }
 
+/// Google bilan kirish/davom etish tugmasi (keng, ikonali pill).
+/// Hozircha OAuth tayyor emas — bosilganda "Tez kunda" oynasi chiqadi.
+class GoogleSignInButton extends StatelessWidget {
+  final VoidCallback onTap;
+  const GoogleSignInButton({super.key, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 54,
+      child: OutlinedButton.icon(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          backgroundColor: kAuthField,
+          foregroundColor: kAuthText,
+          side: const BorderSide(color: kAuthFieldBorder),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        icon: const _GoogleGlyph(),
+        label: const Text(
+          'Google bilan davom etish',
+          style: TextStyle(
+            color: kAuthText,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "G" harfi — Google brendi ranglarisiz, neytral oq doira ichida.
+class _GoogleGlyph extends StatelessWidget {
+  const _GoogleGlyph();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+      alignment: Alignment.center,
+      child: const Text(
+        'G',
+        style: TextStyle(
+          color: Color(0xFF4285F4),
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
+/// "Tez kunda" ma'lumot oynasi (OAuth va boshqa kelajak funksiyalar uchun).
+Future<void> showComingSoonDialog(
+  BuildContext context, {
+  required String title,
+  required String message,
+}) {
+  return showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      backgroundColor: kAuthField,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      title: Row(
+        children: [
+          const Icon(Icons.rocket_launch_outlined, color: kAuthAccent, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: kAuthText,
+                fontSize: 17,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+      content: Text(
+        message,
+        style: const TextStyle(color: kAuthMuted, fontSize: 14, height: 1.4),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          style: TextButton.styleFrom(foregroundColor: kAuthLink),
+          child: const Text('Tushunarli',
+              style: TextStyle(fontWeight: FontWeight.w700)),
+        ),
+      ],
+    ),
+  );
+}
+
 /// Ijtimoiy tarmoq orqali kirish tugmasi (yumaloq, ikonali).
 class SocialButton extends StatelessWidget {
   final Widget child;

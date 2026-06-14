@@ -45,6 +45,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
+  /// Google bilan kirish hozircha tayyor emas — "Tez kunda" oynasi.
+  void _googleSoon() => showComingSoonDialog(
+        context,
+        title: 'Google bilan kirish',
+        message:
+            'Bu funksiya tez kunda qo\'shiladi. Hozircha email va parol orqali kiring.',
+      );
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authProvider);
@@ -158,33 +166,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                       const SizedBox(height: 24),
                       const OrDivider(label: 'Or continue with'),
                       const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SocialButton(
-                            onTap: () => _soon('Google'),
-                            child: const Text(
-                              'G',
-                              style: TextStyle(
-                                color: kAuthText,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          SocialButton(
-                            onTap: () => _soon('Apple'),
-                            child: const Icon(Icons.apple,
-                                color: kAuthText, size: 26),
-                          ),
-                          const SizedBox(width: 16),
-                          SocialButton(
-                            onTap: () => _soon('Facebook'),
-                            child: const Icon(Icons.facebook,
-                                color: Color(0xFF1877F2), size: 26),
-                          ),
-                        ],
+                      Center(
+                        child: GoogleSignInButton(onTap: _googleSoon),
                       ),
                       const SizedBox(height: 28),
                       Row(

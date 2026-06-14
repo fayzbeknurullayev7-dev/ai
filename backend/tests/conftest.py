@@ -144,6 +144,11 @@ def fake_media():
 
 
 @pytest.fixture
+def fake_image():
+    return FakeAgent("ImageAgent", "gemini-2.0-flash-preview-image-generation")
+
+
+@pytest.fixture
 def planner(registry, memory, knowledge_base):
     """Injeksiya qilingan FakeClient + RAG bilim bazasi bilan REAL PlannerAgent."""
     return PlannerAgent(
@@ -155,8 +160,10 @@ def planner(registry, memory, knowledge_base):
 
 
 @pytest.fixture
-def agent_router(fake_coder, fake_media, planner):
-    return AgentRouter(coder=fake_coder, media=fake_media, planner=planner)
+def agent_router(fake_coder, fake_media, planner, fake_image):
+    return AgentRouter(
+        coder=fake_coder, media=fake_media, planner=planner, image=fake_image
+    )
 
 
 @pytest.fixture

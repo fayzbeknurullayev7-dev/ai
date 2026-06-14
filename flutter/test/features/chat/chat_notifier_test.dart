@@ -5,6 +5,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nexus_ai_agent/features/chat/domain/entities/agent_event.dart';
 import 'package:nexus_ai_agent/features/chat/domain/entities/chat_message.dart';
+import 'package:nexus_ai_agent/features/chat/domain/entities/conversation.dart';
+import 'package:nexus_ai_agent/features/chat/data/datasources/conversation_store.dart';
 import 'package:nexus_ai_agent/features/chat/domain/repositories/chat_repository.dart';
 import 'package:nexus_ai_agent/features/chat/domain/usecases/stream_message_usecase.dart';
 import 'package:nexus_ai_agent/features/chat/presentation/providers/chat_provider.dart';
@@ -44,8 +46,21 @@ class FakeChatRepository implements ChatRepository {
       throw UnimplementedError();
 }
 
+/// Hive'siz, RAM'da ishlovchi soxta suhbat ombori (test uchun).
+class FakeConversationStore implements ConversationStore {
+  List<Conversation> saved = [];
+
+  @override
+  List<Conversation> loadAll() => saved;
+
+  @override
+  Future<void> saveAll(List<Conversation> conversations) async {
+    saved = conversations;
+  }
+}
+
 ChatNotifier _build(FakeChatRepository repo) =>
-    ChatNotifier(StreamMessageUseCase(repo));
+    ChatNotifier(StreamMessageUseCase(repo), FakeConversationStore());
 
 void main() {
   group('ChatNotifier — muvaffaqiyatli oqim', () {

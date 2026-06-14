@@ -24,6 +24,23 @@ PLANNER_KEYWORDS = [
     "avval", "keyin", "then", "first", "research", "tahlil",
 ]
 
+# Rasm YARATISH (generatsiya) — media tahlilidan farqli, yuqori ustuvorlikda.
+_IMAGE_GEN_PHRASES = [
+    "rasm yarat", "rasm chiz", "rasm yasa", "rasm tayyorla", "rasmini chiz",
+    "surat yarat", "surat chiz", "chizib ber", "rasm generatsiya", "logo yarat",
+    "logo chiz", "generate image", "generate an image", "create image",
+    "create an image", "draw image", "draw an image", "make image",
+    "make an image", "image yarat", "rasm:", "image of",
+]
+# Generatsiya fe'llari (rasm/image/surat oti bilan birga kelsa).
+_GEN_VERBS = {
+    "yarat", "yaratib", "chiz", "chizib", "yasa", "yasab", "tayyorla",
+    "generate", "create", "draw", "make", "generatsiya",
+}
+_IMAGE_NOUNS = {"rasm", "rasmni", "rasmini", "surat", "image", "logo", "rasim"}
+# Tahlil/ko'rish — bu rasm GENERATSIYASI emas, MediaAgent'ga ketadi.
+_ANALYZE_HINTS = {"tahlil", "analiz", "describe", "tasvirla", "tushuntir"}
+
 
 class AgentRouter:
     """
@@ -37,10 +54,17 @@ class AgentRouter:
     4. Hech biri topilmasa → CoderAgent (default).
     """
 
-    def __init__(self, coder: BaseAgent, media: BaseAgent, planner: BaseAgent):
+    def __init__(
+        self,
+        coder: BaseAgent,
+        media: BaseAgent,
+        planner: BaseAgent,
+        image: BaseAgent,
+    ):
         self._coder = coder
         self._media = media
         self._planner = planner
+        self._image = image
 
     @staticmethod
     def _count_matches(keywords: List[str], tokens: set, lower: str) -> int:
@@ -54,9 +78,29 @@ class AgentRouter:
                 count += 1
         return count
 
+    @staticmethod
+    def _is_image_generation(lower: str, tokens: set) -> bool:
+        """Rasm GENERATSIYASI (yaratish) so'rovini aniqlaydi — tahlildan farqli.
+
+        1) Aniq ibora ("rasm yarat", "generate image" ...) → True.
+        2) Rasm oti (rasm/surat/image/logo) + generatsiya fe'li birga kelsa,
+           va tahlil/ko'rish ishorasi bo'lmasa → True.
+        """
+        # Tahlil/tasvirlash so'rovi bo'lsa — bu generatsiya emas (MediaAgent'ga).
+        if tokens & _ANALYZE_HINTS:
+            return False
+        for phrase in _IMAGE_GEN_PHRASES:
+            if phrase in lower:
+                return True
+        return bool((tokens & _IMAGE_NOUNS) and (tokens & _GEN_VERBS))
+
     def _select_agent(self, message: str) -> BaseAgent:
         lower = message.lower()
         tokens = set(re.findall(r"[a-zA-Z']+", lower))
+
+        # Rasm yaratish eng yuqori ustuvorlikda — boshqa keyword'lardan oldin.
+        if self._is_image_generation(lower, tokens):
+            return self._image
 
         planner_score = self._count_matches(PLANNER_KEYWORDS, tokens, lower)
         media_score = self._count_matches(MEDIA_KEYWORDS, tokens, lower)

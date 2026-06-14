@@ -36,16 +36,13 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     if (ok && mounted) context.go('/chat');
   }
 
-  void _soon(String label) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$label — tez orada'),
-        backgroundColor: kAuthField,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
+  /// Google bilan ro'yxatdan o'tish hozircha tayyor emas — "Tez kunda" oynasi.
+  void _googleSoon() => showComingSoonDialog(
+        context,
+        title: 'Google bilan davom etish',
+        message:
+            'Bu funksiya tez kunda qo\'shiladi. Hozircha email va parol orqali ro\'yxatdan o\'ting.',
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -160,33 +157,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       const SizedBox(height: 24),
                       const OrDivider(label: 'Or continue with'),
                       const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SocialButton(
-                            onTap: () => _soon('Google'),
-                            child: const Text(
-                              'G',
-                              style: TextStyle(
-                                color: kAuthText,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          SocialButton(
-                            onTap: () => _soon('Apple'),
-                            child: const Icon(Icons.apple,
-                                color: kAuthText, size: 26),
-                          ),
-                          const SizedBox(width: 16),
-                          SocialButton(
-                            onTap: () => _soon('Facebook'),
-                            child: const Icon(Icons.facebook,
-                                color: Color(0xFF1877F2), size: 26),
-                          ),
-                        ],
+                      Center(
+                        child: GoogleSignInButton(onTap: _googleSoon),
                       ),
                       const SizedBox(height: 28),
                       Row(

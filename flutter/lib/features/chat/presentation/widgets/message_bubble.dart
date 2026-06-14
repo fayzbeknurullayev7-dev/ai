@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -71,31 +72,35 @@ class MessageBubble extends StatelessWidget {
                             ),
                           ),
                         ),
-                      MarkdownBody(
-                        data: message.content.isEmpty ? '…' : message.content,
-                        styleSheet: MarkdownStyleSheet(
-                          p: const TextStyle(
-                            color: ChatColors.text,
-                            fontSize: 15,
-                            height: 1.5,
-                          ),
-                          code: const TextStyle(
-                            color: Color(0xFFB91C1C),
-                            backgroundColor: Color(0xFFF3F4F6),
-                            fontFamily: 'monospace',
-                            fontSize: 13,
-                          ),
-                          codeblockDecoration: BoxDecoration(
-                            color: const Color(0xFFF6F8FA),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: ChatColors.border),
-                          ),
-                          blockquoteDecoration: BoxDecoration(
-                            color: ChatColors.surface,
-                            borderRadius: BorderRadius.circular(8),
+                      if (message.content.isNotEmpty || !message.hasImage)
+                        MarkdownBody(
+                          data:
+                              message.content.isEmpty ? '…' : message.content,
+                          styleSheet: MarkdownStyleSheet(
+                            p: const TextStyle(
+                              color: ChatColors.text,
+                              fontSize: 15,
+                              height: 1.5,
+                            ),
+                            code: const TextStyle(
+                              color: Color(0xFFB91C1C),
+                              backgroundColor: Color(0xFFF3F4F6),
+                              fontFamily: 'monospace',
+                              fontSize: 13,
+                            ),
+                            codeblockDecoration: BoxDecoration(
+                              color: const Color(0xFFF6F8FA),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: ChatColors.border),
+                            ),
+                            blockquoteDecoration: BoxDecoration(
+                              color: ChatColors.surface,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
-                      ),
+                      if (message.hasImage)
+                        _GeneratedImage(base64Data: message.imageBase64!),
                       if (message.hasSteps) AgentStepsPanel(steps: message.steps),
                     ],
                   ),
@@ -109,6 +114,56 @@ class MessageBubble extends StatelessWidget {
                 child: _ActionRow(content: message.content),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// AI yaratgan rasm — base64'dan dekod qilib, yumaloq burchakli ko'rsatadi.
+class _GeneratedImage extends StatelessWidget {
+  final String base64Data;
+  const _GeneratedImage({required this.base64Data});
+
+  Uint8List? _decode() {
+    try {
+      // `data:image/png;base64,...` prefiksi bo'lsa olib tashlaymiz.
+      final raw = base64Data.contains(',')
+          ? base64Data.substring(base64Data.indexOf(',') + 1)
+          : base64Data;
+      return base64Decode(raw);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bytes = _decode();
+    if (bytes == null) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 8),
+        child: Text(
+          'Rasmni ko\'rsatib bo\'lmadi.',
+          style: TextStyle(color: ChatColors.muted, fontSize: 13),
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          gaplessPlayback: true,
+          errorBuilder: (_, __, ___) => const Padding(
+            padding: EdgeInsets.all(12),
+            child: Text(
+              'Rasmni ochib bo\'lmadi.',
+              style: TextStyle(color: ChatColors.muted, fontSize: 13),
+            ),
+          ),
         ),
       ),
     );

@@ -2,6 +2,7 @@ from app.agents.router import AgentRouter
 from app.agents.coder_agent import CoderAgent
 from app.agents.media_agent import MediaAgent
 from app.agents.planner_agent import PlannerAgent
+from app.agents.image_agent import ImageAgent
 from app.memory import BaseMemory, InMemoryStore, RedisMemory
 from app.tools import build_default_registry, ToolRegistry
 from app.tools.knowledge_tool import KnowledgeSearchTool
@@ -45,11 +46,12 @@ _registry.register(KnowledgeSearchTool(_knowledge_base))
 # Agentlar
 _coder = CoderAgent()
 _media = MediaAgent()
+_image = ImageAgent()
 _planner = PlannerAgent(
     registry=_registry, memory=_memory, knowledge_base=_knowledge_base
 )
 
-_router = AgentRouter(coder=_coder, media=_media, planner=_planner)
+_router = AgentRouter(coder=_coder, media=_media, planner=_planner, image=_image)
 
 
 def get_agent_router() -> AgentRouter:

@@ -1,7 +1,7 @@
 import 'tool_step.dart';
 
 /// Backend SSE oqimidagi tipizatsiyalangan eventlar.
-/// Protokol: start | token | step | done | error
+/// Protokol: start | token | image | step | done | error
 sealed class AgentEvent {
   const AgentEvent();
 }
@@ -15,6 +15,13 @@ class StartEvent extends AgentEvent {
 class TokenEvent extends AgentEvent {
   final String content;
   const TokenEvent(this.content);
+}
+
+/// AI yaratgan rasm (base64) — ixtiyoriy izoh (caption) bilan.
+class ImageEvent extends AgentEvent {
+  final String base64;
+  final String? caption;
+  const ImageEvent(this.base64, {this.caption});
 }
 
 class StepEvent extends AgentEvent {
