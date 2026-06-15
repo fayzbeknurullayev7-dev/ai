@@ -7,6 +7,9 @@ class ApiConstants {
   static const registerEndpoint = '/auth/register';
   static const loginEndpoint = '/auth/login';
   static const meEndpoint = '/auth/me';
+  static const slidesGenerateEndpoint = '/slides/generate';
+  static const slidesDownloadEndpoint = '/slides/download';
+  static const videoGenerateEndpoint = '/video/generate';
   static const connectTimeout = Duration(seconds: 60);
   static const receiveTimeout = Duration(seconds: 120);
 }
