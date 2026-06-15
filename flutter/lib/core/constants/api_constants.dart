@@ -1,13 +1,5 @@
 class ApiConstants {
-  static const baseUrl = 'https://nexus-project-3gnp.onrender.com/api/v1';
-
-  /// Host (`/api/v1`siz) — backend qaytargan nisbiy `download_url` (masalan
-  /// `/api/v1/slides/download/<id>`) bilan birlashtirib to'liq havola quriladi.
-  static final origin = baseUrl.replaceFirst('/api/v1', '');
-
-  static const slidesGenerateEndpoint = '/slides/generate';
-  static const videoGenerateEndpoint = '/video/generate';
-
+  static const baseUrl = 'https://nexus-ai-backend-47be.onrender.com/api/v1';
   static const chatEndpoint = '/chat/';
   static const chatStreamEndpoint = '/chat/stream';
   static const agentRunEndpoint = '/agent/run';
@@ -15,6 +7,6 @@ class ApiConstants {
   static const registerEndpoint = '/auth/register';
   static const loginEndpoint = '/auth/login';
   static const meEndpoint = '/auth/me';
-  static const connectTimeout = Duration(seconds: 120);
+  static const connectTimeout = Duration(seconds: 60);
   static const receiveTimeout = Duration(seconds: 120);
 }
