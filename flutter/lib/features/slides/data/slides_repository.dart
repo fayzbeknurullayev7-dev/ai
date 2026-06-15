@@ -35,7 +35,7 @@ class SlidesRepository {
         SlideResult(
           title: data['title'] as String? ?? 'Taqdimot',
           slideCount: (data['slide_count'] as num?)?.toInt() ?? 0,
-          downloadUrl: '${ApiConstants.origin}$relative',
+          downloadUrl: '${ApiConstants.baseUrl.replaceAll("/api/v1", "")}$relative',
         ),
       );
     } on DioException catch (e) {
