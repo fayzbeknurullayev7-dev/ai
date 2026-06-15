@@ -25,6 +25,16 @@ class MediaAgent(BaseAgent):
     def name(self) -> str:
         return "MediaAgent"
 
+    def refresh_client(self) -> None:
+        """Gemini klientini joriy settings.GEMINI_API_KEY bilan qayta quradi.
+
+        Telegram `/setkey GEMINI ...` buyrug'idan keyin chaqiriladi."""
+        genai.configure(api_key=settings.GEMINI_API_KEY)
+        self._model = genai.GenerativeModel(
+            model_name=self._model_name,
+            system_instruction=SYSTEM_PROMPT,
+        )
+
     def _build_history(self, history: List[Message]) -> list:
         result = []
         for h in history[-10:]:

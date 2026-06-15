@@ -47,6 +47,13 @@ class CoderAgent(BaseAgent):
     def name(self) -> str:
         return self._name
 
+    def refresh_client(self) -> None:
+        """Groq klientini joriy settings.GROQ_API_KEY bilan qayta quradi.
+
+        Telegram `/setkey GROQ ...` buyrug'idan keyin chaqiriladi — eski klient
+        ishlatishda davom etmasligi uchun (key konstruktor vaqtida olinadi)."""
+        self._client = AsyncGroq(api_key=settings.GROQ_API_KEY)
+
     def _build_messages(self, message: str, history: List[Message]) -> list:
         msgs = [{"role": "system", "content": self._system_prompt}]
         for h in history[-10:]:  # last 10 turns

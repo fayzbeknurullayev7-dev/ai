@@ -70,6 +70,30 @@ def get_agent_router() -> AgentRouter:
     return _router
 
 
+# ---- Runtime key yangilash (Telegram /setkey) -------------------------------
+def refresh_provider_clients(provider: str) -> None:
+    """Berilgan provayder uchun jonli klientlarni qayta quradi.
+
+    `provider`: "groq" | "gemini" | "kling". settings allaqachon yangilangan
+    bo'lishi kerak — bu funksiya shunchaki yangi key bilan klientlarni tiklaydi.
+    Kling endpoint key'ni so'rov vaqtida o'qiydi, shuning uchun u uchun amal
+    talab qilinmaydi (no-op)."""
+    p = provider.lower()
+    if p == "groq":
+        _coder.refresh_client()
+        _coder_pro.refresh_client()
+    elif p == "gemini":
+        _media.refresh_client()
+    # "kling" — video endpoint settings.KLING_API_KEY ni so'rovda o'qiydi.
+
+
+def refresh_all_clients() -> None:
+    """Barcha provayder klientlarini qayta quradi (Telegram /restart)."""
+    _coder.refresh_client()
+    _coder_pro.refresh_client()
+    _media.refresh_client()
+
+
 def get_memory() -> BaseMemory:
     return _memory
 
