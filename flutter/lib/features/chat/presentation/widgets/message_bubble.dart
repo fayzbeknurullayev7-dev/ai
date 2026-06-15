@@ -160,7 +160,20 @@ class _GeneratedImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Tashqi URL (masalan Pollinations.ai) — to'g'ridan-to'g'ri tarmoqdan.
+    // Avval base64 (inline) rasm — backend yuklab bergan bo'lsa shu ishlatiladi.
+    final bytes = _decode();
+    if (bytes != null) {
+      return _frame(
+        Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          gaplessPlayback: true,
+          errorBuilder: (_, __, ___) => _message('Rasmni ochib bo\'lmadi.'),
+        ),
+      );
+    }
+
+    // Zaxira: tashqi URL (masalan Pollinations.ai) — to'g'ridan-to'g'ri tarmoqdan.
     final url = imageUrl;
     if (url != null && url.isNotEmpty) {
       return _frame(
@@ -185,19 +198,8 @@ class _GeneratedImage extends StatelessWidget {
       );
     }
 
-    // Aks holda base64 (inline) rasm.
-    final bytes = _decode();
-    if (bytes == null) {
-      return _message('Rasmni ko\'rsatib bo\'lmadi.');
-    }
-    return _frame(
-      Image.memory(
-        bytes,
-        fit: BoxFit.cover,
-        gaplessPlayback: true,
-        errorBuilder: (_, __, ___) => _message('Rasmni ochib bo\'lmadi.'),
-      ),
-    );
+    // Na base64, na URL bo'lmasa.
+    return _message('Rasmni ko\'rsatib bo\'lmadi.');
   }
 }
 
